@@ -2,17 +2,17 @@ package main
 
 import (
 	"bufio"
+	_ "code.google.com/p/go-mysql-driver/mysql"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/hoisie/web"
 	"html/template"
-	"log"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
-	_ "code.google.com/p/go-mysql-driver/mysql"
 )
 
 var db *sql.DB
@@ -255,7 +255,7 @@ func main() {
 		if err := tp.ExecuteTemplate(ctx, "index", &struct {
 			RecentSolds []RecentSold
 			Artists     []Artist
-		}{ recentSolds(), artists() }); err != nil {
+		}{recentSolds(), artists()}); err != nil {
 			log.Print(err.Error())
 			ctx.Abort(500, "Server Error")
 		}
@@ -267,7 +267,7 @@ func main() {
 			RecentSolds []RecentSold
 			Name        string
 			Tickets     []Ticket
-		}{ recentSolds(), a.Name, tickets(id) }); err != nil {
+		}{recentSolds(), a.Name, tickets(id)}); err != nil {
 			log.Print(err.Error())
 			ctx.Abort(500, "Server Error")
 		}
@@ -279,7 +279,7 @@ func main() {
 			RecentSolds []RecentSold
 			Ticket      Ticket
 			Variations  []Variation
-		}{ recentSolds(), *t, v }); err != nil {
+		}{recentSolds(), *t, v}); err != nil {
 			log.Print(err.Error())
 			ctx.Abort(500, "Server Error")
 		}
@@ -298,28 +298,28 @@ func main() {
 		tx, err := db.Begin()
 		if err != nil {
 			log.Print(err.Error())
-            ctx.Abort(500, "Server Error")
+			ctx.Abort(500, "Server Error")
 		}
 
 		res, err := tx.Exec(`INSERT INTO order_request (member_id) VALUES (?)`, memberId)
 		if err != nil {
 			log.Print(err.Error())
-            ctx.Abort(500, "Server Error")
+			ctx.Abort(500, "Server Error")
 		}
 		orderId, err := res.LastInsertId()
 		if err != nil {
 			log.Print(err.Error())
-            ctx.Abort(500, "Server Error")
+			ctx.Abort(500, "Server Error")
 		}
 		res, err = tx.Exec(`UPDATE stock SET order_id = ? WHERE variation_id = ? AND order_id IS NULL ORDER BY RAND() LIMIT 1`, orderId, variationId)
 		if err != nil {
 			log.Print(err.Error())
-            ctx.Abort(500, "Server Error")
+			ctx.Abort(500, "Server Error")
 		}
 		affected, err := res.RowsAffected()
 		if err != nil {
 			log.Print(err.Error())
-            ctx.Abort(500, "Server Error")
+			ctx.Abort(500, "Server Error")
 		}
 
 		if affected > 0 {
